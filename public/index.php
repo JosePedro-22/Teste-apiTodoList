@@ -1,10 +1,10 @@
 <?php
 header('Content-Type: application/json');
 
-require "./vendor/autoload.php";
-require "./app/models/User.php";
-require "./app/controllers/UserController.php";
-require "./routes/router.php";
+require "../vendor/autoload.php";
+require "../app/models/User.php";
+require "../app/controllers/UserController.php";
+require "../routes/router.php";
 
 try{
     $uri = parse_url($_SERVER["REQUEST_URI"])["path"];

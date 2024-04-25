@@ -4,7 +4,7 @@ use app\dao\UserDaoMysql;
 use PDO;
 use User;
 
-require_once "./app/config/database.php";
+require_once "../app/config/database.php";
 
 class UserService{
     
