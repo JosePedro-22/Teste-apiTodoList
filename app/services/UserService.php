@@ -19,7 +19,7 @@ class UserService{
     public function NewUser(array $data){
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         
-        $this->user->name = filter_var($data['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $this->user->name = addslashes(htmlspecialchars($data['name']));
         $this->user->email = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
         $this->user->password = $hash;
 
@@ -30,7 +30,7 @@ class UserService{
         
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $this->user->id = $id;
-        $this->user->name = filter_var($data['name'], FILTER_SANITIZE_FULL_SPECIAL_CHARS);
+        $this->user->name = addslashes(htmlspecialchars($data['name']));
         $this->user->email = filter_var($data['email'], FILTER_SANITIZE_EMAIL);
         $this->user->password = $hash;
 
