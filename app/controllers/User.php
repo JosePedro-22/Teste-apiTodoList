@@ -16,7 +16,14 @@ class User extends Controller
     
     public function index()
     {
-        echo "Home";
+        http_response_code(200);
+        echo json_encode(["message" => "Bem-Vindo ApiREST ToDo List"]);
+    }
+
+    public function find()
+    {
+        http_response_code(200);
+        echo json_encode(["message" => "Nenhuma Task cadastrada na ApiREST ToDo List"]);
     }
     
     public function store(array $body){

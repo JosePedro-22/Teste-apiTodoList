@@ -12,7 +12,7 @@ class web{
         $url = $this->parseURL();
         $this->method = $_SERVER["REQUEST_METHOD"];
         $con = ucfirst($url[1]);
-    
+        
         if(file_exists("../app/controllers/" .$con. ".php")) unset($url[1]);
         elseif(empty($url[1]) && $this->method === 'GET'){
             http_response_code(200);
@@ -32,7 +32,7 @@ class web{
         
         switch($this->method){
             case "GET":
-                if(isset($url[2])){
+                if(!empty($url[2])){
                     $this->controllerMethod = "find";
                     $this->params = [$url[2]];
                 }else $this->controllerMethod = "index";
