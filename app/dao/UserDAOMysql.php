@@ -1,14 +1,14 @@
 <?php
 namespace app\dao;
-
-use app\models\User as ModelsUser;
-use app\models\UserDAO as ModelsUserDAO;
+require_once "../app/models/User.php";
+use app\models\User;
+use app\models\UserDAO;
 use Firebase\JWT\JWT;
 use PDO;
 
-require_once "../app/models/User.php";
 
-class UserDaoMysql implements ModelsUserDAO{
+
+class UserDAOMysql implements UserDAO{
     private $pdo;
 
     public function __construct(PDO $driver){
@@ -16,7 +16,7 @@ class UserDaoMysql implements ModelsUserDAO{
     }
     
     private function generateUser(array $array){
-        $user = new ModelsUser();
+        $user = new User();
 
         $user->id = $array['id'] ?? 0;
         $user->name = $array['name'] ?? '';
@@ -26,8 +26,8 @@ class UserDaoMysql implements ModelsUserDAO{
         return $user;
     }
     
-    public function insert(ModelsUser $data){
-        $sql = $this->pdo->prepare('INSERT INTO usuarios 
+    public function insert(User $data){
+        $sql = $this->pdo->prepare('INSERT INTO users 
             (name,email,password) 
             VALUES 
             (:name,:email,:password)');
@@ -35,15 +35,19 @@ class UserDaoMysql implements ModelsUserDAO{
         $sql->bindParam(':name',$data->name);
         $sql->bindParam(':email',$data->email);
         $sql->bindParam(':password',$data->password);
-        $sql->execute();
-        
-        if ($sql->rowCount() > 0) return $this->findByEmail($data->email);
-        else return false;
+        $success = $sql->execute();
+
+        if ($success) {
+            $lastId = $this->pdo->lastInsertId();
+            return $this->getUserById($lastId);
+        } else {
+            return false;
+        }
     }
 
-    public function update(ModelsUser $data){
+    public function update(User $data){
 
-        $sql = $this->pdo->prepare('UPDATE usuarios SET 
+        $sql = $this->pdo->prepare('UPDATE users SET 
             name = :name,
             email = :email,
             password = :password
@@ -54,40 +58,44 @@ class UserDaoMysql implements ModelsUserDAO{
         $sql->bindParam(':email', $data->email);
         $sql->bindParam(':password', $data->password);
     
-        $sql->execute();
-        
-        if ($sql->rowCount() > 0) return $this->findByEmail($data->email);
-        else return false;
+        $success = $sql->execute();
+
+        if ($success && $sql->rowCount() > 0) {
+            return $this->getUserById($data->id);
+        } else {
+            return false;
+        }
     }
 
     public function delete(int $id){
-        $sql = $this->pdo->prepare('DELETE FROM usuarios WHERE id = :id');
+        $sql = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
         
         $sql->bindParam(':id',$id);
-        $sql->execute();
+        $success = $sql->execute();
 
-        if ($sql->rowCount() > 0) return $id;
-        else return false;
+        if ($success && $sql->rowCount() > 0) {
+            return $id;
+        } else {
+            return false;
+        }
             
     }
 
     public function findByEmail(string $email){
         
         if(!empty($email)){
-            $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE email = :email');
+            $sql = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');
             $sql->bindParam(':email',$email);
             $sql->execute();
 
             $data = $sql->fetch(PDO::FETCH_ASSOC);
 
             if ($data) return $this->generateUser($data);
-        }
-
-        return false;
+        }else return false;
     }
 
     public function getUserById(int $userId) {
-        $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+        $sql = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
         $sql->bindParam(':id', $userId);
         $sql->execute();
         
@@ -98,7 +106,7 @@ class UserDaoMysql implements ModelsUserDAO{
         $data = $this->findByEmail($email);
 
         if(!empty($data)){
-            $sql = $this->pdo->prepare('UPDATE usuarios SET 
+            $sql = $this->pdo->prepare('UPDATE users SET 
             token = :token
             WHERE id = :id');
             
@@ -115,7 +123,7 @@ class UserDaoMysql implements ModelsUserDAO{
     public function updateToken(string $token){
 
         if(!empty($token)){
-            $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE token = :token');
+            $sql = $this->pdo->prepare('SELECT * FROM users WHERE token = :token');
             $sql->bindParam(':token',$token);
             $sql->execute();
 
@@ -125,7 +133,7 @@ class UserDaoMysql implements ModelsUserDAO{
             if ($decodedJWT->expires_in > time()) return true;
             else {
                 
-                $this->pdo->prepare("UPDATE usuarios SET token = '' WHERE id = :token");
+                $this->pdo->prepare("UPDATE users SET token = '' WHERE id = :token");
                 $sql->bindParam(':token',$token);
                 $sql->execute();
 

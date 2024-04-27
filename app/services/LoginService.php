@@ -1,53 +1,51 @@
 <?php
 namespace app\services;
 
-use app\dao\UserDaoMysql;
+use app\dao\LoginDAOMysql;
 use PDO;
-use app\models\User as ModelsUser;
+use app\models\User;
 use Dotenv\Dotenv as Dotenv;
 use Firebase\JWT\JWT;
 
 class LoginService{
     public $driver;
-    public $userDao;
+    public $LoginDao;
     public $user;
     public function __construct(PDO $db)
     {  
         $this->driver = $db;
-        $this->userDao = new UserDaoMysql($this->driver);
-        $this->user = new ModelsUser();
+        $this->LoginDao = new LoginDAOMysql($this->driver);
+        $this->user = new User();
+        $dotenv = Dotenv::createImmutable(__DIR__."../../.."); 
+        $dotenv->load();
     }
 
-    public function EmailExists(string $email){
+    public function emailExists(string $email){
         $this->user->email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        return $this->userDao->findByEmail($this->user->email) ? true :  false;
+        return $this->LoginDao->findByEmail($this->user->email) ? true :  false;
     }
 
-    public function PasswordEqual(string $email, string $password){
+    public function passwordEqual(string $email, string $password){
 
         $this->user->email = filter_var($email, FILTER_SANITIZE_EMAIL);
-        $user = $this->userDao->findByEmail($this->user->email);
+        $user = $this->LoginDao->findByEmail($this->user->email);
         return password_verify($password, $user->password);
     }
 
-    public function CreateToken(array $data){
-        $dotenv = Dotenv::createImmutable(__DIR__."../../.."); 
-        $dotenv->load();
-
-        $expire_in = time() + 60000;
+    public function createToken(array $data){
 
         $payload = [
-            'exp' => $expire_in,
+            'exp' => time() + 60000,
             'iat' => time(),
             'email' => $data['email'],
         ];
 
         $encode = JWT::encode($payload, $_ENV['KEY'], 'HS256');
-        $this->userDao->saveToken($data['email'], $encode);
+        $this->LoginDao->saveToken($data['email'], $encode);
         return json_encode(array('token' => $encode));
     }
 
-    public function VerifyToken(string $token){
-        return $this->userDao->updateToken($token);
+    public function verifyToken(string $token){
+        return $this->LoginDao->updateToken($token);
     }
 }

@@ -1,18 +1,18 @@
 <?php
+namespace app\models;
 
 class Task {
     public $id;
     public $title;
     public $description;
     public $status;
-    public $createdAt;
-    public $updatedAt;
+    public $user_id;
 }
 
 interface TaskDAO{
-    // public function findByToken($token);
-    // public function findByEmail($email);
-    // public function findById($id, $full = false);
-    // public function update(User $user);
-    // public function insert(User $user);
+    public function insert(Task $task);
+    public function update(Task $task);
+    public function delete(int $taskId);
+    public function findAll(int $idUser);
+    public function findById(int $taskId);
 }

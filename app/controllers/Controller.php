@@ -2,10 +2,11 @@
 namespace app\controllers;
 
 use app\config\Database as DatabaseConfig;
+use PDO;
 
 class Controller {
     protected static $db;
-    
+
     public function __construct() {
         if (!self::$db) {
             self::$db = DatabaseConfig::getConnection();

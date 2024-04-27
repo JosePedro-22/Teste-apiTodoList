@@ -26,9 +26,9 @@ class User extends Controller
     }
     
     public function store(array $body){
-        if($body['email'] && $body['password']){
-            if($this->userService->EmailExists($body['email']) === false)
-                echo json_encode(array($this->userService->NewUser($body)));
+        if($body[0]['email'] && $body[0]['password']){
+            if($this->userService->emailExists($body[0]['email']) === false)
+                echo json_encode(array($this->userService->newUser($body[0])));
             else {
                 http_response_code(404);
                 echo json_encode(array('message' => 'Usuario já existe'));
@@ -41,10 +41,11 @@ class User extends Controller
         
     }
 
-    public function update($id, array $body){
-        if($id && $body['email']){
-            if($this->userService->EmailExists($body['email']) === false){
-                $result = $this->userService->UpdateUser($id,$body);
+    public function update(array $body){
+        if($body[0] && $body[1]['email']){
+            if($this->userService->emailExists($body[1]['email']) === false){
+                
+                $result = $this->userService->updateUser($body[0],$body[1]);
                 if($result) echo json_encode(array('message' => 'Usuário atualizado com sucesso'));
                  else {
                     http_response_code(500);
@@ -62,15 +63,16 @@ class User extends Controller
         }
     }
 
-    public function delete($id){
-        if(!$id){
+    public function delete(array $user){
+
+        if(!$user[0]){
             http_response_code(404);
             echo json_encode(array('message' => 'Invalid user ID'));
             exit;
         }
 
-        if($this->userService->UserExists($id)){ 
-            if($this->userService->DeleteUser($id)){
+        if($this->userService->userExists($user[0])){ 
+            if($this->userService->deleteUser($user[0])){
                 echo json_encode(array('message' => 'Usuário excluído com sucesso'));
             } else {
                 http_response_code(500);

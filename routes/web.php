@@ -9,14 +9,24 @@ class Web {
 
     private $params = [];
     private $controllerMethod;
+    private $loginMethod;
 
     function __construct(){
         $url = $this->parseURL();
         $method = $_SERVER["REQUEST_METHOD"];
         $con = ucfirst($url[1]);
-        
-        if ($con !== 'User' && !($con === 'Login' && $method === 'POST'))
-            Login::verify();
+        $loginMethod = new Login();
+
+
+        if ($con !== 'User' && !($con === 'Login' && $method === 'POST')){
+            $data = $loginMethod->verify();
+            if($data){
+                $this->callTheRouter($con, $url, $method, $data);
+            }
+            else{
+                json_encode(["erro" => "Faça o login novamente"]);
+            }
+        }
         else $this->callTheRouter($con, $url, $method);
     }
 
@@ -24,7 +34,7 @@ class Web {
         return explode("/", $_SERVER["SERVER_NAME"] . $_SERVER["REQUEST_URI"]);
     }
 
-    private function callTheRouter(string $con, array $url, string $method){
+    private function callTheRouter(string $con, array $url, string $method, $user = null){
         if(file_exists("../app/controllers/" .$con. ".php")) 
             unset($url[1]);
         elseif(empty($url[1]) && $method === 'GET'){
@@ -41,10 +51,12 @@ class Web {
         $controllerInstance = new $controllerNamespace();
 
         $validatedRoute = Middleware::handle($method, $url, $con, json_decode(file_get_contents('php://input'), true), $this->params);
+
+        
         
         $this->controllerMethod = $validatedRoute['controllerMethod'];
         $this->params = $validatedRoute['params'];
         
-        call_user_func_array([$controllerInstance, $this->controllerMethod], $this->params);
+        call_user_func_array([$controllerInstance, $this->controllerMethod], [$this->params, $user]);
     }
 }

@@ -5,7 +5,7 @@ use app\services\LoginService;
 
 class Login extends Controller{
     
-    private static $loginService;
+    private static ?LoginService $loginService = null;
     
     public function __construct()
     {
@@ -14,13 +14,14 @@ class Login extends Controller{
     }
 
     public function store(array $body){
-        if(!$body['email'] && $body['password']){
+        if(!$body[0]['email'] && $body[0]['password']){
             http_response_code(401);
             echo json_encode(array('message' => 'Credenciais incorretas'));
         }
 
-        if(self::$loginService->EmailExists($body['email']) && self::$loginService->PasswordEqual($body['email'], $body['password']))
-                echo self::$loginService->CreateToken($body);
+        if(self::$loginService->emailExists($body[0]['email']) && self::$loginService->passwordEqual($body[0]['email'], $body[0]['password'])){
+            echo self::$loginService->createToken($body[0]);
+        }
         else {
             http_response_code(401);
             echo json_encode(array('message' => 'Credenciais incorretas'));
@@ -28,17 +29,19 @@ class Login extends Controller{
     }
 
     public static function verify(){
-
         $headers = getallheaders();
-        if (isset($headers['authorization'])) {
-            $token = str_replace("Bearer ", "", $headers['authorization']);
-        } else if (isset($headers['Authorization'])) {
+        
+        if (isset($headers['Authorization'])) {
             $token = str_replace("Bearer ", "", $headers['Authorization']);
-        } else {
-            echo json_encode(['ERRO' => 'Você não está logado, ou seu token é inválido.']);
-            exit;
+            $data = self::$loginService->verifyToken($token);
+            if(self::$loginService->verifyToken($token)) return $data;
+            else echo json_encode(['ERRO' => 'Você não está logado, ou seu token é inválido.']);
         }
-
-        echo self::$loginService->VerifyToken($token);
+        else {
+            http_response_code(404);
+            echo json_encode(['ERRO' => 'Você não está logado, ou seu token é inválido.']);
+        }
+        
+        
     }
 }
