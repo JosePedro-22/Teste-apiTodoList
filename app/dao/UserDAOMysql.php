@@ -3,6 +3,7 @@ namespace app\dao;
 
 use app\models\User as ModelsUser;
 use app\models\UserDAO as ModelsUserDAO;
+use Firebase\JWT\JWT;
 use PDO;
 
 require_once "../app/models/User.php";
@@ -91,5 +92,47 @@ class UserDaoMysql implements ModelsUserDAO{
         $sql->execute();
         
         return $sql->fetch(PDO::FETCH_ASSOC);
+    }
+
+    public function saveToken(string $email, string $token){
+        $user = $this->findByEmail($email);
+
+        if(!empty($user)){
+            $sql = $this->pdo->prepare('UPDATE usuarios SET 
+            token = :token
+            WHERE id = :id');
+            
+            $sql->bindParam(':id', $user->id);
+            $sql->bindParam(':token', $token);
+        
+            $sql->execute();
+        
+            if ($sql->rowCount() > 0) return true;
+        }
+        return false;
+    }
+
+    public function updateToken(string $token){
+
+        if(!empty($token)){
+            $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE token = :token');
+            $sql->bindParam(':token',$token);
+            $sql->execute();
+
+            $data = $sql->fetch(PDO::FETCH_ASSOC);
+            $decodedJWT = JWT::decode($data['token'], $GLOBALS['secretJWT']);
+
+            if ($decodedJWT->expires_in > time()) return true;
+            else {
+                
+                $this->pdo->prepare("UPDATE usuarios SET token = '' WHERE id = :token");
+                $sql->bindParam(':token',$token);
+                $sql->execute();
+
+                return false;
+            }
+        }
+
+        return false;
     }
 }

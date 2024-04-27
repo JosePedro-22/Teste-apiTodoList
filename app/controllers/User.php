@@ -5,7 +5,6 @@ use app\services\UserService;
 
 class User extends Controller
 {
-    public $driver;
     public $userService;
 
     public function __construct()
