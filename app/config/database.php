@@ -1,33 +1,25 @@
 <?php 
+namespace app\config;
 
-// $base = 'http://localhost:8000';
-
-// $db_name = 'apiTodoList';
-// $db_host = 'localhost';
-// $db_user = 'root';
-// $db_password = '';
-
-// $pdo = new PDO('mysql:dbname='.$db_name.';host='.$db_host, $db_user, $db_password);
+use PDO;
+use PDOException;
 
 class Database
 {
-    private $host = 'localhost';
-    private $db_name = 'apiTodoList';
-    private $username = 'root';
-    private $password = '';
-    public $conn;
+    private static $host = 'localhost';
+    private static $db_name = 'apiTodoList';
+    private static $username = 'root';
+    private static $password = '';
+    private static $conn;
 
-    public function getConnection()
+    public static function getConnection()
     {
-        $this->conn = null;
-
         try {
-            $this->conn = new PDO('mysql:host=' . $this->host . ';dbname=' . $this->db_name, $this->username, $this->password);
-            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            self::$conn = new PDO('mysql:host=' . self::$host . ';dbname=' . self::$db_name, self::$username, self::$password);
         } catch (PDOException $exception) {
             echo 'Connection Error: ' . $exception->getMessage();
         }
 
-        return $this->conn;
+        return self::$conn;
     }
 }

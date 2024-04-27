@@ -1,52 +1,95 @@
 <?php
 namespace app\dao;
+
+use app\models\User as ModelsUser;
+use app\models\UserDAO as ModelsUserDAO;
 use PDO;
-use User;
-use UserDAO;
 
-require_once "./app/models/User.php";
+require_once "../app/models/User.php";
 
-class UserDaoMysql implements UserDAO{
+class UserDaoMysql implements ModelsUserDAO{
     private $pdo;
 
     public function __construct(PDO $driver){
         $this->pdo = $driver;
     }
     
-    public function insert(User $user){
-        $sql = $this->pdo->prepare('INSERT INTO usuarios (name,email,password) VALUES (:name,:email,:password)');
+    public function insert(ModelsUser $user){
+        $sql = $this->pdo->prepare('INSERT INTO usuarios 
+            (name,email,password) 
+            VALUES 
+            (:name,:email,:password)');
 
         $sql->bindParam(':name',$user->name);
         $sql->bindParam(':email',$user->email);
         $sql->bindParam(':password',$user->password);
         $sql->execute();
         
-        return true;
+        if ($sql->rowCount() > 0) return $user;
+        else return false;
     }
 
-    public function update(User $user){
+    public function update(ModelsUser $user){
+
         $sql = $this->pdo->prepare('UPDATE usuarios SET 
             name = :name,
             email = :email,
-            password = :password,
+            password = :password
             WHERE id = :id');
         
-        $sql->bindParam(':id',$user->id);
-        $sql->bindParam(':name',$user->name);
-        $sql->bindParam(':email',$user->email);
-        $sql->bindParam(':password',$user->password);
+        $sql->bindParam(':id', $user->id);
+        $sql->bindParam(':name', $user->name);
+        $sql->bindParam(':email', $user->email);
+        $sql->bindParam(':password', $user->password);
     
         $sql->execute();
-
-        return true;
+    
+        if ($sql->rowCount() > 0)return $user->id;
+        else return false;
     }
 
-    public function delete(User $user){
+    public function delete(int $id){
         $sql = $this->pdo->prepare('DELETE FROM usuarios WHERE id = :id');
         
-        $sql->bindParam(':id',$user->id);
+        $sql->bindParam(':id',$id);
         $sql->execute();
 
-        return true;
-    }  
+        if ($sql->rowCount() > 0) return $id;
+        else return false;
+            
+    }
+
+    private function generateUser(array $array){
+        $user = new ModelsUser();
+
+        $user->id = $array['id'] ?? 0;
+        $user->name = $array['name'] ?? '';
+        $user->email = $array['email'] ?? '';
+        $user->password = $array['password'] ?? '';
+    
+        return $user;
+    }
+
+    public function findByEmail(string $email){
+        
+        if(!empty($email)){
+            $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE email = :email');
+            $sql->bindParam(':email',$email);
+            $sql->execute();
+
+            $data = $sql->fetch(PDO::FETCH_ASSOC);
+
+            if ($data) return $this->generateUser($data);
+        }
+
+        return false;
+    }
+
+    public function getUserById(int $userId) {
+        $sql = $this->pdo->prepare('SELECT * FROM usuarios WHERE id = :id');
+        $sql->bindParam(':id', $userId);
+        $sql->execute();
+        
+        return $sql->fetch(PDO::FETCH_ASSOC);
+    }
 }
