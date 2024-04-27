@@ -4,10 +4,8 @@ namespace app\services;
 use app\dao\UserDaoMysql;
 use PDO;
 use app\models\User as ModelsUser;
-// use Dotenv\Dotenv;
+use Dotenv\Dotenv as Dotenv;
 use Firebase\JWT\JWT;
-
-// require_once "../../vendor/autoload.php";
 
 class LoginService{
     public $driver;
@@ -33,11 +31,8 @@ class LoginService{
     }
 
     public function CreateToken(array $data){
-        
-        // $dotenv = Dotenv\Dotenv::createImmutable(dirname(__FILE__, 2));
-        // $dotenv->load();
-
-        // $KEY='';
+        $dotenv = Dotenv::createImmutable(__DIR__."../../.."); 
+        $dotenv->load();
 
         $expire_in = time() + 60000;
 
@@ -47,7 +42,7 @@ class LoginService{
             'email' => $data['email'],
         ];
 
-        $encode = JWT::encode($payload, $GLOBALS['secretJWT'], 'HS256');
+        $encode = JWT::encode($payload, $_ENV['KEY'], 'HS256');
         $this->userDao->saveToken($data['email'], $encode);
         return json_encode(array('token' => $encode));
     }

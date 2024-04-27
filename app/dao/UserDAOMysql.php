@@ -15,22 +15,33 @@ class UserDaoMysql implements ModelsUserDAO{
         $this->pdo = $driver;
     }
     
-    public function insert(ModelsUser $user){
+    private function generateUser(array $array){
+        $user = new ModelsUser();
+
+        $user->id = $array['id'] ?? 0;
+        $user->name = $array['name'] ?? '';
+        $user->email = $array['email'] ?? '';
+        $user->password = $array['password'] ?? '';
+    
+        return $user;
+    }
+    
+    public function insert(ModelsUser $data){
         $sql = $this->pdo->prepare('INSERT INTO usuarios 
             (name,email,password) 
             VALUES 
             (:name,:email,:password)');
 
-        $sql->bindParam(':name',$user->name);
-        $sql->bindParam(':email',$user->email);
-        $sql->bindParam(':password',$user->password);
+        $sql->bindParam(':name',$data->name);
+        $sql->bindParam(':email',$data->email);
+        $sql->bindParam(':password',$data->password);
         $sql->execute();
         
-        if ($sql->rowCount() > 0) return $user;
+        if ($sql->rowCount() > 0) return $this->findByEmail($data->email);
         else return false;
     }
 
-    public function update(ModelsUser $user){
+    public function update(ModelsUser $data){
 
         $sql = $this->pdo->prepare('UPDATE usuarios SET 
             name = :name,
@@ -38,14 +49,14 @@ class UserDaoMysql implements ModelsUserDAO{
             password = :password
             WHERE id = :id');
         
-        $sql->bindParam(':id', $user->id);
-        $sql->bindParam(':name', $user->name);
-        $sql->bindParam(':email', $user->email);
-        $sql->bindParam(':password', $user->password);
+        $sql->bindParam(':id', $data->id);
+        $sql->bindParam(':name', $data->name);
+        $sql->bindParam(':email', $data->email);
+        $sql->bindParam(':password', $data->password);
     
         $sql->execute();
-    
-        if ($sql->rowCount() > 0)return $user->id;
+        
+        if ($sql->rowCount() > 0) return $this->findByEmail($data->email);
         else return false;
     }
 
@@ -58,17 +69,6 @@ class UserDaoMysql implements ModelsUserDAO{
         if ($sql->rowCount() > 0) return $id;
         else return false;
             
-    }
-
-    private function generateUser(array $array){
-        $user = new ModelsUser();
-
-        $user->id = $array['id'] ?? 0;
-        $user->name = $array['name'] ?? '';
-        $user->email = $array['email'] ?? '';
-        $user->password = $array['password'] ?? '';
-    
-        return $user;
     }
 
     public function findByEmail(string $email){
@@ -95,14 +95,14 @@ class UserDaoMysql implements ModelsUserDAO{
     }
 
     public function saveToken(string $email, string $token){
-        $user = $this->findByEmail($email);
+        $data = $this->findByEmail($email);
 
-        if(!empty($user)){
+        if(!empty($data)){
             $sql = $this->pdo->prepare('UPDATE usuarios SET 
             token = :token
             WHERE id = :id');
             
-            $sql->bindParam(':id', $user->id);
+            $sql->bindParam(':id', $data->id);
             $sql->bindParam(':token', $token);
         
             $sql->execute();

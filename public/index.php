@@ -7,7 +7,5 @@ date_default_timezone_set("America/Sao_Paulo");
 require "../vendor/autoload.php";
 require "../routes/web.php";
 
-$GLOBALS['secretJWT'] = 'dwlkdjwejlkdwekjldwjkledjwkledjwkfnerjkgrjk5gio434534053op4rj34rj3jrkejklfjkler';
-
 new routes\web();
 
