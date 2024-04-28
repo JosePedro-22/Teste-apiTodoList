@@ -1,0 +1,235 @@
+openapi: 3.0.0
+info:
+  title: APIREST ToDo List
+  description: API para gerenciar usuários em uma lista de tarefas.
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+paths:
+  /user:
+    get:
+      summary: Retorna uma mensagem de boas-vindas
+      responses:
+        '200':
+          description: Mensagem de boas-vindas
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+    post:
+      summary: Cria um novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '201':
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+  /user/update/{id}:
+    put:
+      summary: Atualiza um usuário existente
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Usuário atualizado com sucesso
+  /user/delete/{id}:
+    delete:
+      summary: Exclui um usuário
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: integer
+            format: int64
+      responses:
+        '200':
+          description: Usuário excluído com sucesso
+  /login:
+    post:
+      summary: Realiza login do usuário.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login bem-sucedido.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+  /task:
+    get:
+      summary: Retorna todas as tasks do usuário logado.
+      responses:
+        '200':
+          description: Lista de tasks do usuário.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Task'
+    post:
+      summary: Cria uma nova task.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                title:
+                  type: string
+                description:
+                  type: string
+                status:
+                  type: boolean
+      responses:
+        '200':
+          description: Task criada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+  /task/{id}:
+    get:
+      summary: Retorna uma task específica.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID da task a ser retornada.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task encontrada.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+    put:
+      summary: Atualiza uma task existente.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID da task a ser atualizada.
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+      responses:
+        '200':
+          description: Task atualizada com sucesso.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Task'
+        '404':
+          description: Task não encontrada.
+    delete:
+      summary: Exclui uma task existente.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          description: ID da task a ser excluída.
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Task excluída com sucesso.
+        '404':
+          description: Task não encontrada.
+components:
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        password:
+          type: string
+        token:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        status:
+          type: integer
+        user_id:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time

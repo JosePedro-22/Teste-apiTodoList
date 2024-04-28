@@ -44,7 +44,7 @@ class Task extends Controller {
 
     public function update(array $body, array $user){
         if($body[1]['title'] && $body[1]['description']){
-            echo json_encode(array($this->taskService->updateTask($body[0], $body[1])));
+            echo json_encode($this->taskService->updateTask($body[0], $body[1]));
         }else{
             http_response_code(400);
             echo json_encode(array('message' => 'Titulo ou Descricao invalidos'));

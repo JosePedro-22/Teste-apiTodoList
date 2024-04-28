@@ -28,7 +28,7 @@ class User extends Controller
     public function store(array $body){
         if($body[0]['email'] && $body[0]['password']){
             if($this->userService->emailExists($body[0]['email']) === false)
-                echo json_encode(array($this->userService->newUser($body[0])));
+                echo json_encode($this->userService->newUser($body[0]));
             else {
                 http_response_code(404);
                 echo json_encode(array('message' => 'Usuario já existe'));
