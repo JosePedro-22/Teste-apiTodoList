@@ -26,7 +26,9 @@ class TaskService {
         
         $this->task->title = addslashes(htmlspecialchars($data['title']));
         $this->task->description = addslashes(htmlspecialchars($data['description']));
-        $this->task->status = $data['status'];
+        if(isset($data['status']) && ($data['status'] === true || $data['status'] === false))
+            $this->task->status = $data['status'];
+        else $this->task->status = 0;
         $this->task->user_id = $id;
 
         return $this->taskDao->insert($this->task);
@@ -37,7 +39,9 @@ class TaskService {
         $this->task->id = $id;
         $this->task->title = addslashes(htmlspecialchars($data['title']));
         $this->task->description = addslashes(htmlspecialchars($data['description']));
-        $this->task->status = $data['status'];
+        if(isset($data['status']) && ($data['status'] === true || $data['status'] === false))
+            $this->task->status = $data['status'];
+        else $this->task->status = 0;
 
         return $this->taskDao->update($this->task);
     }

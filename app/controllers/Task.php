@@ -33,7 +33,7 @@ class Task extends Controller {
     }
     
     public function store(array $body, array $user){
-        if($body[0]['title'] && $body[0]['description']){
+        if((isset($body[0]['title']) && strlen($body[0]['title']) >= 3) && (isset($body[0]['description']) && strlen($body[0]['description']) >= 3)){
             echo json_encode($this->taskService->newTask($body[0], $user['id']));
         }else{
             http_response_code(404);
@@ -43,7 +43,7 @@ class Task extends Controller {
     }
 
     public function update(array $body, array $user){
-        if($body[1]['title'] && $body[1]['description']){
+        if((isset($body[1]['title']) && strlen($body[1]['title']) >= 3) && (isset($body[1]['description']) && strlen($body[1]['description']) >= 3)){
             echo json_encode($this->taskService->updateTask($body[0], $body[1]));
         }else{
             http_response_code(400);
