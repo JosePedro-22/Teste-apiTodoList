@@ -12,9 +12,9 @@ class User{
 }
 
 interface UserDAO{
-    public function insert(User $user);
-    public function update(User $user);
-    public function delete(int $id);
-    public function findByEmail(string $email);
-    public function getUserById(int $id);
+    public function insert(User $user):mixed;
+    public function update(User $user):array|bool;
+    public function delete(int $id):int|bool;
+    public function findByEmail(string $email):User|bool;
+    public function getUserById(int $id):array|bool;
 }

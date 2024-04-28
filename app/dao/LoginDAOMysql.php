@@ -2,12 +2,9 @@
 namespace app\dao;
 require_once "../app/models/User.php";
 use app\models\User;
-use app\models\UserDAO;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use PDO;
-
-
 
 class LoginDAOMysql{
     private $pdo;
@@ -16,7 +13,8 @@ class LoginDAOMysql{
         $this->pdo = $driver;
     }
     
-    private function generateUser(array $array){
+    private function generateUser(array $array): User
+    {
         $user = new User();
 
         $user->id = $array['id'] ?? 0;
@@ -27,7 +25,8 @@ class LoginDAOMysql{
         return $user;
     }
     
-    public function findByEmail(string $email){
+    public function findByEmail(string $email): User|bool
+    {
         
         if(!empty($email)){
             $sql = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');
@@ -43,7 +42,8 @@ class LoginDAOMysql{
         return false;
     }
 
-    public function saveToken(string $email, string $token){
+    public function saveToken(string $email, string $token):bool
+    {
         $data = $this->findByEmail($email);
 
         if(!empty($data)){
@@ -61,7 +61,8 @@ class LoginDAOMysql{
         return false;
     }
 
-    public function updateToken(string $token){
+    public function updateToken(string $token):array|bool
+    {
         
         $sql = $this->pdo->prepare('SELECT * FROM users WHERE token = :token');
         $sql->bindParam(':token',$token);

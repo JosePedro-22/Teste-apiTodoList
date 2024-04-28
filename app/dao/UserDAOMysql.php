@@ -3,7 +3,6 @@ namespace app\dao;
 require_once "../app/models/User.php";
 use app\models\User;
 use app\models\UserDAO;
-use Firebase\JWT\JWT;
 use PDO;
 
 
@@ -15,7 +14,8 @@ class UserDAOMysql implements UserDAO{
         $this->pdo = $driver;
     }
     
-    private function generateUser(array $array){
+    private function generateUser(array $array):User
+    {
         $user = new User();
 
         $user->id = $array['id'] ?? 0;
@@ -26,7 +26,8 @@ class UserDAOMysql implements UserDAO{
         return $user;
     }
     
-    public function insert(User $data){
+    public function insert(User $data):mixed
+    {
         $sql = $this->pdo->prepare('INSERT INTO users 
             (name,email,password) 
             VALUES 
@@ -45,8 +46,8 @@ class UserDAOMysql implements UserDAO{
         }
     }
 
-    public function update(User $data){
-
+    public function update(User $data):array|bool
+    {
         $sql = $this->pdo->prepare('UPDATE users SET 
             name = :name,
             email = :email,
@@ -67,7 +68,8 @@ class UserDAOMysql implements UserDAO{
         }
     }
 
-    public function delete(int $id){
+    public function delete(int $id):int|bool
+    {
         $sql = $this->pdo->prepare('DELETE FROM users WHERE id = :id');
         
         $sql->bindParam(':id',$id);
@@ -81,66 +83,32 @@ class UserDAOMysql implements UserDAO{
             
     }
 
-    public function findByEmail(string $email){
-        
+    public function findByEmail(string $email):User|bool
+    {    
         if(!empty($email)){
             $sql = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');
             $sql->bindParam(':email',$email);
             $sql->execute();
-
+    
             $data = $sql->fetch(PDO::FETCH_ASSOC);
-
+    
             if ($data) return $this->generateUser($data);
-        }else return false;
+        }
+    
+        return false;
     }
 
-    public function getUserById(int $userId) {
+    public function getUserById(int $userId):array|bool
+    {
         $sql = $this->pdo->prepare('SELECT * FROM users WHERE id = :id');
         $sql->bindParam(':id', $userId);
         $sql->execute();
         
-        return $sql->fetch(PDO::FETCH_ASSOC);
-    }
-
-    public function saveToken(string $email, string $token){
-        $data = $this->findByEmail($email);
-
-        if(!empty($data)){
-            $sql = $this->pdo->prepare('UPDATE users SET 
-            token = :token
-            WHERE id = :id');
-            
-            $sql->bindParam(':id', $data->id);
-            $sql->bindParam(':token', $token);
-        
-            $sql->execute();
-        
-            if ($sql->rowCount() > 0) return true;
+        $userData = $sql->fetch(PDO::FETCH_ASSOC);
+        if ($userData) {
+            return $userData;
+        } else {
+            return false;
         }
-        return false;
-    }
-
-    public function updateToken(string $token){
-
-        if(!empty($token)){
-            $sql = $this->pdo->prepare('SELECT * FROM users WHERE token = :token');
-            $sql->bindParam(':token',$token);
-            $sql->execute();
-
-            $data = $sql->fetch(PDO::FETCH_ASSOC);
-            $decodedJWT = JWT::decode($data['token'], $GLOBALS['secretJWT']);
-
-            if ($decodedJWT->expires_in > time()) return true;
-            else {
-                
-                $this->pdo->prepare("UPDATE users SET token = '' WHERE id = :token");
-                $sql->bindParam(':token',$token);
-                $sql->execute();
-
-                return false;
-            }
-        }
-
-        return false;
     }
 }

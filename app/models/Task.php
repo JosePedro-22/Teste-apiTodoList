@@ -10,9 +10,9 @@ class Task {
 }
 
 interface TaskDAO{
-    public function insert(Task $task);
-    public function update(Task $task);
-    public function delete(int $taskId);
-    public function findAll(int $idUser);
-    public function findById(int $taskId);
+    public function insert(Task $task):mixed;
+    public function update(Task $task):Task|bool;
+    public function delete(int $taskId):int|bool;
+    public function findAll(int $idUser):array;
+    public function findById(int $taskId):array;
 }

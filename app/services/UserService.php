@@ -17,7 +17,8 @@ class UserService{
         $this->user = new User();
     }
 
-    public function newUser(array $data){
+    public function newUser(array $data):mixed
+    {
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         
         $this->user->name = addslashes(htmlspecialchars($data['name']));
@@ -27,8 +28,8 @@ class UserService{
         return $this->userDao->insert($this->user);
     }
 
-    public function updateUser(int $id, array $data){
-        
+    public function updateUser(int $id, array $data):array|bool
+    {
         $hash = password_hash($data['password'], PASSWORD_DEFAULT);
         $this->user->id = $id;
         $this->user->name = addslashes(htmlspecialchars($data['name']));
@@ -38,16 +39,19 @@ class UserService{
         return $this->userDao->update($this->user);
     }
 
-    public function deleteUser(int $id){
+    public function deleteUser(int $id):int|bool
+    {
         return $this->userDao->delete($id);
     }
 
-    public function emailExists(string $email){
+    public function emailExists(string $email):User|bool
+    {
         $this->user->email = filter_var($email, FILTER_SANITIZE_EMAIL);
         return $this->userDao->findByEmail($this->user->email) ? true :  false;
     }
 
-    public function userExists($id){
+    public function userExists($id):array|bool
+    {
         return $this->userDao->getUserById($id);
     }
     

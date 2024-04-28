@@ -13,7 +13,8 @@ class TaskDAOMysql implements TaskDAO {
         $this->pdo = $pdo;
     }
 
-    public function insert(Task $data) {
+    public function insert(Task $data): mixed
+    {
         $sql = $this->pdo->prepare('INSERT INTO tasks 
             (title, description, status, user_id) 
             VALUES 
@@ -33,7 +34,8 @@ class TaskDAOMysql implements TaskDAO {
         }
     }
 
-    public function update(Task $data) {
+    public function update(Task $data): Task|bool
+    {
         $sql = $this->pdo->prepare('UPDATE tasks SET 
             title = :title,
             description = :description,
@@ -54,7 +56,8 @@ class TaskDAOMysql implements TaskDAO {
         }
     }
 
-    public function delete(int $id) {
+    public function delete(int $id):int|bool
+    {
         $sql = $this->pdo->prepare('DELETE FROM tasks WHERE id = :id');
         $sql->bindParam(':id', $id);
         $success = $sql->execute();
@@ -66,7 +69,9 @@ class TaskDAOMysql implements TaskDAO {
         }
     }
 
-    public function findAll(int $userId) {
+    public function findAll(int $userId):array
+    {
+
         $sql = $this->pdo->prepare('SELECT * FROM tasks WHERE user_id = :userId');
         $sql->bindParam(':userId', $userId, PDO::PARAM_INT);
         $success = $sql->execute();
@@ -78,7 +83,8 @@ class TaskDAOMysql implements TaskDAO {
         }
     }
 
-    public function findById(int $taskId) {
+    public function findById(int $taskId):array
+    {
         $sql = $this->pdo->prepare('SELECT * FROM tasks WHERE id = :taskId');
         $sql->bindParam(':taskId', $taskId);
         $success = $sql->execute();
