@@ -35,10 +35,6 @@ cd Teste-apiTodoList
 ```
 composer install
 ```
-4. rode o projeto:
-```
-php -S localhost:8000 -t public
-```
 
 ## 🎲 As principais decisões técnicas que tomei:
 
@@ -47,6 +43,21 @@ php -S localhost:8000 -t public
 * Validação de dados: A validação de dados foi implementada para garantir que os dados recebidos pela API estejam corretos e completos. Isso ajuda a evitar erros e problemas de segurança.
 * Saída da API: formato JSON.
 
+## 🔧 Instruções para Rodar o Projeto
+1. Rode o script sql no mysql para montar o banco de dados 
+2. rode o projeto:
+```
+php -S localhost:8000 -t public
+```
+3. Use o Postman ou Eclipse ou algum de sua preferencia para acessar as rotas:
+```
+COLOCAR AS ROTAS
+```
+4. Olhe no swagger os Json de Entrada para colocar no Postman
+```
+Obs: Para acessar as rotas de Usuarios não é preciso está autenticado, mas
+as rotas de tasks é preciso que o usuario se autentique
+```
 ## 🎲 Sobre
 
 |Name Branch     |Description                                                  |
