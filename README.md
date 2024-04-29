@@ -50,9 +50,9 @@ composer install
 php -S localhost:8000 -t public
 ```
 3. Use o Postman ou Eclipse ou algum de sua preferencia para acessar as rotas:
-```
-COLOCAR AS ROTAS
-```
+
+<img width="693" alt="Captura de Tela 2024-04-28 às 22 06 40" src="https://github.com/JosePedro-22/Teste-apiTodoList/assets/63018518/6cd34e21-df21-4947-9a29-2fc81e9321e4">
+
 4. Olhe no swagger os Json de Entrada para colocar no Postman
 ```
 Obs: Para acessar as rotas de Usuarios não é preciso está autenticado, mas
