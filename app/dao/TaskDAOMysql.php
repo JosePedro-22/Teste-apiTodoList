@@ -1,20 +1,25 @@
 <?php
 namespace app\dao;
-require_once "../app/models/Task.php";
 
-use app\models\Task;
-use app\models\TaskDAO;
+use app\interfaces\InterfaceTaskDAO;
 use PDO;
+use app\models\TaskModel;
 
-class TaskDAOMysql implements TaskDAO {
+class TaskDAOMysql implements InterfaceTaskDAO{
     private PDO $pdo;
 
     public function __construct(PDO $pdo) {
         $this->pdo = $pdo;
     }
 
-    public function insert(Task $data): mixed
+    public function insert(TaskModel $data): mixed
     {
+        if(empty($data->status) || $data->status === false || $data->status == 0){
+            $data->status = 0;
+        }else {
+            $data->status = 1;
+        }
+
         $sql = $this->pdo->prepare('INSERT INTO tasks 
             (title, description, status, user_id) 
             VALUES 
@@ -34,7 +39,7 @@ class TaskDAOMysql implements TaskDAO {
         }
     }
 
-    public function update(Task $data): Task|bool
+    public function update(TaskModel $data): TaskModel|bool|array
     {
         $sql = $this->pdo->prepare('UPDATE tasks SET 
             title = :title,
@@ -49,7 +54,7 @@ class TaskDAOMysql implements TaskDAO {
 
         $success = $sql->execute();
 
-        if ($success && $sql->rowCount() > 0) {
+        if ($success) {
             return $this->findById($data->id);
         } else {
             return false;

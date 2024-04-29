@@ -1,95 +1,80 @@
 <?php
 namespace app\controllers;
 
-use app\models\User;
+use app\models\UserModel;
+use app\models\TaskModel;
 use app\services\TaskService;
 use Exception;
 
 class Task extends Controller {
-    public $taskService;
     public $user;
 
     public function __construct()
     {
         parent::__construct();
-        $this->taskService = new TaskService(self::$db);
-        $this->user = new User();
+        $this->user = new UserModel();
     }
     
-    public function index(array $params,array $user): void
+    public function index($params,$user): void
     {
-        try {
-            $data = $this->taskService->getAllTasks($user['id']);
-            if (empty($data)) {
-                throw new Exception('O Usuario não possui nenhuma Task', 404);
-            } else {
-                echo json_encode($data);
-            }
-        } catch (Exception $e) {
-            http_response_code($e->getCode());
-            echo json_encode(['message' => $e->getMessage()]);
+        if(is_array($user)) $this->user->id = $user['id'];
+            else $this->user->id = $user->id;
+
+        $data = (new TaskService(self::$db))->getAllTasks($this->user->id);
+        if (empty($data)) {
+            http_response_code(404);
+            echo json_encode(["message" => "O Usuario não possui nenhuma Task"]);
+        } else {
+            http_response_code(200);
+            echo json_encode($data);
         }
     }
 
-    public function find(array $params,array $user): void
+    public function find($params,$user): void
     {   
-        try {
-            $data = $this->taskService->getByIdTask($params[0]);
-            if (empty($data)) {
-                throw new Exception('Não existe nenhuma Task', 404);
-            } else {
-                echo json_encode($data);
-            }
-        } catch (Exception $e) {
-            http_response_code($e->getCode());
-            echo json_encode(['message' => $e->getMessage()]);
+        $data = (new TaskService(self::$db))->getByIdTask($params[0]);
+        if (empty($data)) {
+            http_response_code(404);
+            echo json_encode(["message" => "Não existe nenhuma Task"]);
+        } else {
+            echo json_encode($data);
         }
     }
     
     public function store(array $body, array $user): void
     {
-        try {
-            if(!(isset($body[0]['title']) && strlen($body[0]['title']) >= 3) || !(isset($body[0]['description']) && strlen($body[0]['description']) >= 3)) {
-                throw new Exception('Titulo ou Descricao invalidos');
-            }
-    
-            echo json_encode($this->taskService->newTask($body[0], $user['id']));
-        } catch (Exception $e) {
+        if(!(isset($body[0]['title']) && strlen($body[0]['title']) >= 3) || !(isset($body[0]['description']) && strlen($body[0]['description']) >= 3)) {
             http_response_code(404);
-            echo json_encode(['message' => $e->getMessage()]);
+            echo json_encode(["message" => "Titulo ou Descricao invalidos"]);
+        }else {
+            echo json_encode((new TaskService(self::$db))->newTask($body[0], $user['id']));
         }
     }
 
     public function update(array $body, array $user): void
-    {
-        try {
-            if((isset($body[1]['title']) && strlen($body[1]['title']) >= 3) && (isset($body[1]['description']) && strlen($body[1]['description']) >= 3)){
-                echo json_encode($this->taskService->updateTask($body[0], $body[1]));
-            } else {
-                throw new Exception('Titulo ou Descricao invalidos');
-            }
-        } catch (Exception $e) {
-            http_response_code(400);
-            echo json_encode(array('message' => $e->getMessage()));
+    {        
+        if((isset($body[1]['title']) && strlen($body[1]['title']) >= 3) && (isset($body[1]['description']) && strlen($body[1]['description']) >= 3)){
+            http_response_code(200);
+            echo json_encode((new TaskService(self::$db))->updateTask($body[0], $body[1]));
+        } else {
+            http_response_code(404);
+            echo json_encode(["message" => "Titulo ou Descricao invalidos"]);
         }
     }
 
     public function delete(array $body, array $user): void
     {
-        try {
-    
-            if (!$body[0] || !$this->taskService->taskExists($body[0])) {
-                throw new Exception('Task não encontrado');
-            }
-    
-            if ($this->taskService->deleteTask($body[0])) {
+        if (!$body[0] || !(new TaskService(self::$db))->taskExists($body[0])) {
+            http_response_code(404);
+            echo json_encode(["message" => "Task não encontrado"]);
+        }else {
+            if ((new TaskService(self::$db))->deleteTask($body[0])) {
                 echo json_encode(array('message' => 'Task excluída com sucesso'));
             } else {
-                throw new Exception('Falha ao excluir Task');
+                http_response_code(404);
+                echo json_encode(["message" => "Falha ao excluir Task"]);
             }
-        } catch (Exception $e) {
-            http_response_code(500);
-            echo json_encode(array('message' => $e->getMessage()));
         }
+       
     }
 }

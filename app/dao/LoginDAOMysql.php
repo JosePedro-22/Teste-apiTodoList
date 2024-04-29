@@ -1,21 +1,22 @@
 <?php
 namespace app\dao;
-require_once "../app/models/User.php";
-use app\models\User;
+
+use app\interfaces\InterfaceLoginDAO;
+use app\models\UserModel;
 use Firebase\JWT\JWT;
 use Firebase\JWT\Key;
 use PDO;
 
-class LoginDAOMysql{
+class LoginDAOMysql implements InterfaceLoginDAO{
     private $pdo;
 
     public function __construct(PDO $driver){
         $this->pdo = $driver;
     }
     
-    private function generateUser(array $array): User
+    private function generateUser(array $array):UserModel
     {
-        $user = new User();
+        $user = new UserModel();
 
         $user->id = $array['id'] ?? 0;
         $user->name = $array['name'] ?? '';
@@ -25,7 +26,7 @@ class LoginDAOMysql{
         return $user;
     }
     
-    public function findByEmail(string $email): User|bool
+    public function findByEmail(string $email): UserModel|bool
     {
         
         if(!empty($email)){

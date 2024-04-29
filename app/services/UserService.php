@@ -2,19 +2,17 @@
 namespace app\services;
 use app\dao\UserDAOMysql;
 use PDO;
-use app\models\User;
+use app\models\UserModel;
 
 class UserService{
     
-    public $driver;
     public $userDao;
     public $user;
 
     public function __construct(PDO $db)
     {  
-        $this->driver = $db;
-        $this->userDao = new UserDAOMysql($this->driver);
-        $this->user = new User();
+        $this->userDao = new UserDAOMysql($db);
+        $this->user = new UserModel();
     }
 
     public function newUser(array $data):mixed
@@ -44,7 +42,7 @@ class UserService{
         return $this->userDao->delete($id);
     }
 
-    public function emailExists(string $email):User|bool
+    public function emailExists(string $email):UserModel|bool
     {
         $this->user->email = filter_var($email, FILTER_SANITIZE_EMAIL);
         return $this->userDao->findByEmail($this->user->email) ? true :  false;

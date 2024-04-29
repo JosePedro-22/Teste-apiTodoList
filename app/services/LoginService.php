@@ -3,7 +3,7 @@ namespace app\services;
 
 use app\dao\LoginDAOMysql;
 use PDO;
-use app\models\User;
+use app\models\UserModel;
 use Dotenv\Dotenv as Dotenv;
 use Firebase\JWT\JWT;
 
@@ -14,7 +14,7 @@ class LoginService{
     public function __construct(PDO $db)
     {  
         $this->loginDao = new LoginDAOMysql($db);
-        $this->user = new User();
+        $this->user = new UserModel();
         $dotenv = Dotenv::createImmutable(__DIR__."../../.."); 
         $dotenv->load();
     }

@@ -1,22 +1,22 @@
 <?php
 namespace app\dao;
-require_once "../app/models/User.php";
-use app\models\User;
-use app\models\UserDAO;
+
+use app\interfaces\InterfaceUserDAO;
+use app\models\UserModel;
 use PDO;
 
 
 
-class UserDAOMysql implements UserDAO{
+class UserDAOMysql implements InterfaceUserDAO{
     private $pdo;
 
     public function __construct(PDO $driver){
         $this->pdo = $driver;
     }
     
-    private function generateUser(array $array):User
+    private function generateUser(array $array):UserModel
     {
-        $user = new User();
+        $user = new UserModel();
 
         $user->id = $array['id'] ?? 0;
         $user->name = $array['name'] ?? '';
@@ -26,7 +26,7 @@ class UserDAOMysql implements UserDAO{
         return $user;
     }
     
-    public function insert(User $data):mixed
+    public function insert(UserModel $data):mixed
     {
         $sql = $this->pdo->prepare('INSERT INTO users 
             (name,email,password) 
@@ -46,7 +46,7 @@ class UserDAOMysql implements UserDAO{
         }
     }
 
-    public function update(User $data):array|bool
+    public function update(UserModel $data):array|bool
     {
         $sql = $this->pdo->prepare('UPDATE users SET 
             name = :name,
@@ -83,7 +83,7 @@ class UserDAOMysql implements UserDAO{
             
     }
 
-    public function findByEmail(string $email):User|bool
+    public function findByEmail(string $email):UserModel|bool
     {    
         if(!empty($email)){
             $sql = $this->pdo->prepare('SELECT * FROM users WHERE email = :email');

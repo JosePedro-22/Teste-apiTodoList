@@ -1,6 +1,7 @@
 <?php
 namespace app\controllers;
-use app\controllers\Controller as Controller;
+
+use app\controllers\Controller;
 use app\services\UserService;
 use Exception;
 
@@ -40,8 +41,10 @@ class User extends Controller
     {
         try {
             if(isset($body[0]['email']) && isset($body[0]['password'])){
-                if($this->userService->emailExists($body[0]['email']) === false)
+                if($this->userService->emailExists($body[0]['email']) === false){
+                    http_response_code(201);
                     echo json_encode($this->userService->newUser($body[0]));
+                }
                 else {
                     http_response_code(404);
                     echo json_encode(array('message' => 'Usuario já existe'));
