@@ -58,15 +58,42 @@ php -S localhost:8000 -t public
 Obs: Para acessar as rotas de Usuarios não é preciso está autenticado, mas
 as rotas de tasks é preciso que o usuario se autentique
 ```
+4. Rodar Teste
+```
+./vendor/bin/phpunit tests
+```
+você tambem pode rodar test unicamente
+```
+./vendor/bin/phpunit tests/app/controllers/TaskTest.php
+```
+ou
+
+```
+./vendor/bin/phpunit tests/app/controllers/UserTest.php
+```
 ## 🎲 Sobre
 
 |Name Branch     |Description                                                  |
 |----------------|-------------------------------------------------------------|
 |master          |projeto base, implementação do algoritmo para criação de Tarefa|
 
+#### Diagramas do caminho da solicitação à resposta
+```mermaid
+graph LR
+A[HTTP Request Route] --> B[Middleware]
+B --> A[Route]
+A --> C[Controller]
+C --> D[Service]
+D --> E[DAO]
+E --> D
+D --> C
+C --> F[HTTP Response]
+
+```
+
 ## 🛠️ Feito com
 
-* [Php](https://www.php.net/) - A linguagem usada
+* [PHP](https://www.php.net/) - A linguagem usada
 * [Composer](https://getcomposer.org/) - Gerenciador de Dependências
 
 ## ✒️ Autor
